@@ -1,0 +1,24 @@
+[package]
+name = "libtugraph-sys"
+version = "0.1.0+3.5.0"
+rust-version = "1.65.0"
+edition = "2021"
+repository = "https://github.com/antkiller996/rust-tugraph"
+license = "MIT/Apache-2.0"
+description = "Native bindings to liblgraph"
+readme = "README.md"
+categories = ["api-bindings", "ffi", "tugraph"]
+keywords = ["database", "graph", "binding"]
+homepage = "https://github.com/antkiller996/rust-tugraph"
+links = "lgraph"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+libc = "0.2"
+
+[build-dependencies]
+bindgen = "0.64.0"
+
+[dev-dependencies]
+tempfile = "3.4"

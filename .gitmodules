@@ -1,0 +1,3 @@
+[submodule "libtugraph-sys/tugraph-db"]
+	path = libtugraph-sys/tugraph-db
+	url = git@github.com:antkiller996/tugraph-db.git

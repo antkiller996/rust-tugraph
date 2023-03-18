@@ -1,0 +1,26 @@
+[package]
+name = "tugraph"
+version = "0.1.0"
+rust-version = "1.68.0"
+authors = ["antkiller <eadrenking@outlook.com>"]
+edition = "2021"
+description = "A rust binding for the TuGraph library"
+repository = "https://github.com/antkiller996/rust-tugraph"
+license = "Apache-2.0"
+categories = ["database"]
+keywords = ["database", "graph", "binding"]
+homepage = "https://github.com/antkiller996/rust-tugraph"
+readme = "README.md"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[workspace]
+members = ["libtugraph-sys", "plugin-example", "plugin-util", "plugin-util/src/proc_macros"]
+
+[dependencies]
+libtugraph-sys = { path = "./libtugraph-sys", version = "0.1.0" }
+libc = "0.2"
+chrono = "0.4"
+
+[dev-dependencies]
+tempfile = "3"

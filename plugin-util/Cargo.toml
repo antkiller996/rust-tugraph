@@ -1,0 +1,22 @@
+[package]
+name = "plugin-util"
+version = "0.1.0"
+rust-version = "1.64.0"
+edition = "2021"
+description = "A helper crate for writing plugins for TuGraph"
+repository = "https://github.com/antkiller996/rust-tugraph"
+license = "Apache-2.0"
+categories = ["database"]
+keywords = ["database", "graph", "plugin"]
+homepage = "https://github.com/antkiller996/rust-tugraph"
+readme = "README.md"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[dependencies]
+cxx = "1.0"
+libtugraph-sys = { path = "../libtugraph-sys" }
+tugraph = { path = ".." }
+
+[dependencies.plugin_util-proc_macros]
+path = "src/proc_macros"
+version = "0.1.0"

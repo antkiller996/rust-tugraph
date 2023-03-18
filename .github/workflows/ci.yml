@@ -1,0 +1,74 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  fmt:
+    runs-on: ubuntu-latest
+    container:
+      image: antkiller996/rust-tugraph:latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.68.0
+      - uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all --check
+  check-doc:
+    runs-on: ubuntu-latest
+    container:
+      image: antkiller996/rust-tugraph:latest
+      env:
+        LGRAPH_CXX_COMPILER: /usr/local/bin/g++
+        LGRAPH_C_COMPILER: /usr/local/bin/gcc
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.68.0
+      - uses: actions-rs/cargo@v1
+        with:
+          command: doc
+          args: --no-deps --all-features --all
+  clippy:
+    runs-on: ubuntu-latest
+    container:
+      image: antkiller996/rust-tugraph:latest
+      env:
+        LGRAPH_CXX_COMPILER: /usr/local/bin/g++
+        LGRAPH_C_COMPILER: /usr/local/bin/gcc
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.68.0
+      - uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --all --all-features -- -D warnings
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: antkiller996/rust-tugraph:latest
+      env:
+        LGRAPH_CXX_COMPILER: /usr/local/bin/g++
+        LGRAPH_C_COMPILER: /usr/local/bin/gcc
+    needs: [fmt, check-doc, clippy]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.68.0
+      - name: Run test_all.sh
+        run: ./scripts/test_all.sh
+
