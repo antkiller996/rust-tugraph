@@ -26,9 +26,7 @@ echo "clean target.."
 cargo clean
 
 echo "cargo test --lib --verbose && cargo test --tests --verbose..."
-LGRAPH_COMPILE=1 LGRAPH_RECOMPILE=1 \
-cargo test --lib --verbose \
-&& cargo test --tests --verbose
+cargo test --lib --verbose && cargo test --tests --verbose
 
 # doctest not load same shared libraries as cargo test --lib
 # see issue: https://github.com/rust-lang/cargo/issues/8531

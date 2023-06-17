@@ -16,18 +16,14 @@ use std::{
     env, fs,
     path::{Path, PathBuf},
     process::Command,
-    str::FromStr,
 };
 
 fn main() {
     git_submodule_update_init();
     bindgen_tugraph_db();
 
-    let num_jobs = env::var("NUM_JOBS").unwrap_or("2".to_string());
-    if !try_to_find_and_copy_liblgraph() {
-        fail_on_empty_directory("tugraph-db");
-        build_tugraph_db(&num_jobs);
-    }
+    fail_on_empty_directory("tugraph-db");
+    build_tugraph_db();
 }
 
 fn git_submodule_update_init() {
@@ -74,34 +70,6 @@ fn tugraph_db_include_dir() -> PathBuf {
     PathBuf::from(dir)
 }
 
-fn try_to_find_and_copy_liblgraph() -> bool {
-    println!("cargo:rerun-if-env-changed=LGRAPH_COMPILE");
-    if let Ok(v) = env::var("LGRAPH_COMPILE") {
-        if v.to_lowercase() == "true" || v == "1" {
-            return false;
-        }
-    }
-
-    println!("cargo:rerun-if-env-changed=LGRAPH_LIB_DIR");
-    println!("cargo:rerun-if-env-changed=LGRAPH_STATIC");
-
-    if let Ok(src_lib_dir) = env::var("LGRAPH_LIB_DIR") {
-        let src_lib_dir = PathBuf::from_str(&src_lib_dir).unwrap();
-        copy_library_to_out_dir(
-            src_lib_dir.join("liblgraph.so"),
-            out_dir().join("liblgraph.so"),
-        );
-        let mode = match env::var_os("LGRAPH_STATIC") {
-            Some(_) => "static",
-            None => "dylib",
-        };
-        println!("cargo:rustc-link-search=native={}", out_dir().display());
-        println!("cargo:rustc-link-lib={}=lgraph", mode);
-        return true;
-    }
-    false
-}
-
 fn fail_on_empty_directory(name: &str) {
     if fs::read_dir(name).unwrap().count() == 0 {
         panic!(
@@ -110,7 +78,7 @@ fn fail_on_empty_directory(name: &str) {
     }
 }
 
-fn build_tugraph_db(num_jobs: &str) {
+fn build_tugraph_db() {
     let target = env::var("TARGET").unwrap();
     if target != "x86_64-unknown-linux-gnu" {
         panic!(
@@ -118,7 +86,7 @@ fn build_tugraph_db(num_jobs: &str) {
         );
     }
 
-    build_dep(num_jobs);
+    build_dep();
 
     println!("cargo:rerun-if-env-change=LGRAPH_C_COMPILER");
     println!("cargo:rerun-if-env-change=LGRAPH_CXX_COMPILER");
@@ -127,52 +95,50 @@ fn build_tugraph_db(num_jobs: &str) {
     let c_compiler = env::var("LGRAPH_C_COMPILER").unwrap_or("/usr/bin/gcc".to_string());
     let cxx_compiler = env::var("LGRAPH_CXX_COMPILER").unwrap_or("/usr/bin/g++".to_string());
 
-    println!("cargo:rerun-if-env-change=LGRAPH_RECOMPILE");
-    if let Ok(recompile) = env::var("LGRAPH_RECOMPILE") {
-        if recompile.to_lowercase() == "true" || recompile == "1" {
-            run_cmd(Command::new("/bin/bash").args(["-c", "rm -rf tugraph-db/build"]));
-        }
-    }
+    let num_jobs = num_jobs(); // -j N
+    let build_dir = out_dir();
+    let build_dir = build_dir.display(); // -B ${build_dir}
+    let bulid_type = build_type(); // -DCMAKE_BUILD_TYPE=${build_type}
     run_cmd(
         Command::new("/bin/bash").args([
             "-c",
             format!(
                 "
-        cd tugraph-db && mkdir -p build && cd build \
-        && cmake .. -DCMAKE_CXX_COMPILER={cxx_compiler} \
-                    -DCMAKE_C_COMPILER={c_compiler} \
-                    -DCMAKE_BUILD_TYPE=Debug \
-                    -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-        && make -j{num_jobs} lgraph && cd ../.."
+        cmake -S tugraph-db -B {build_dir} \
+            -DCMAKE_CXX_COMPILER={cxx_compiler} \
+            -DCMAKE_C_COMPILER={c_compiler} \
+            -DCMAKE_BUILD_TYPE={bulid_type} \
+            -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+        && cmake --build {build_dir} -j {num_jobs} --target lgraph"
             )
             .as_str(),
         ]),
     );
-    copy_library_to_out_dir(
-        "tugraph-db/build/output/liblgraph.so",
-        out_dir().join("liblgraph.so"),
+    println!(
+        "cargo:rustc-link-search=native={}",
+        out_dir().join("output").display()
     );
-    println!("cargo:rustc-link-search=native={}", out_dir().display());
     // dynamic link liblgraph.so
     println!("cargo:rustc-link-lib=dylib=lgraph");
 }
 
-fn build_dep(num_jobs: &str) {
+fn build_dep() {
+    let num_jobs = num_jobs();
     run_cmd(Command::new("/bin/bash").args([
         "-c",
         format!("cd tugraph-db && SKIP_WEB=1 deps/build_deps.sh -j{num_jobs} && cd ..").as_str(),
     ]));
 }
 
+fn num_jobs() -> String {
+    env::var("NUM_JOBS").unwrap_or_else(|_| "1".to_string())
+}
+
 fn out_dir() -> PathBuf {
     PathBuf::from(env::var("OUT_DIR").unwrap())
 }
 
-fn copy_library_to_out_dir<S: AsRef<Path>, D: AsRef<Path>>(src: S, dst: D) {
-    // https://doc.rust-lang.org/cargo/reference/environment-variables.html#dynamic-library-paths
-    // Paths included from cargo:rustc-link-search outside of the `target/` directory are removed
-    // when adding into dynmaic library search path.
-    // lgraph_out_dir return the path within `target/` directory
-    std::fs::copy(src.as_ref(), dst.as_ref())
-        .unwrap_or_else(|_| panic!("failed to copy {:?}", src.as_ref()));
+fn build_type() -> String {
+    let profile = env::var("PROFILE").unwrap_or_else(|_| "debug".to_string());
+    profile[0..1].to_uppercase() + &profile[1..]
 }
