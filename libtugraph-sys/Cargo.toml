@@ -11,6 +11,19 @@ categories = ["api-bindings", "ffi", "tugraph"]
 keywords = ["database", "graph", "binding"]
 homepage = "https://github.com/antkiller996/rust-tugraph"
 links = "lgraph"
+exclude = [
+    "tugraph-db/**/demo",
+    "tugraph-db/**/build",
+    "tugraph-db/**/install",
+    "tugraph-db/**/doc",
+    "tugraph-db/**/tool",
+    "tugraph-db/src/lucene",
+    "tugraph-db/deps/antlr4/runtime/*",
+    "!tugraph-db/deps/antlr4/runtime/Cpp",
+    "tugraph-db/deps/antlr4/runtime-testsuite/*",
+    "tugraph-db/deps/tugraph-web",
+    "tugraph-db/deps/tugraph-db-client-java",
+]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
