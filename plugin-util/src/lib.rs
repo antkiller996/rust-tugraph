@@ -14,7 +14,7 @@
 
 //! A helper crate brings easy life to write tugraph rust procedure.
 
-pub use plugin_util_proc_macros::tugraph_plugin;
+pub use tugraph_plugin_util_proc_macros::tugraph_plugin;
 
 #[doc(hidden)]
 pub use ::libtugraph_sys::lgraph_api_graph_db_t;
