@@ -1,5 +1,10 @@
 rust-tugraph
 =====================
+[![CI](https://github.com/antkiller996/rust-tugraph/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/antkiller996/rust-tugraph/actions/workflows/ci.yml)
+[![crates.io](https://img.shields.io/crates/v/rust-tugraph)](rust-tugraph)
+[![docs.rs](https://img.shields.io/docsrs/rust-tugraph/latest)](https://docs.rs/tugraph)
+[![license](https://img.shields.io/crates/l/rust-tugraph)](https://github.com/antkiller996/rust-tugraph/blob/master/LICENSE)
+![rust 1.68.0 required](https://img.shields.io/badge/rust-1.68.0-blue.svg?label=MSRV)
 
 # Requirements
 - tugraph-db Build Toolchains
