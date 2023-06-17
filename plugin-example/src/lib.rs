@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use tugraph_plugin_util::tugraph_plugin;
 use tugraph::{db::Graph, txn::TxnRead, Result};
+use tugraph_plugin_util::tugraph_plugin;
 
 #[tugraph_plugin]
 fn echo_with_num_vertex(graph: &mut Graph, request: &str) -> Result<String> {
