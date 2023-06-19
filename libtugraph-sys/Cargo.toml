@@ -11,6 +11,11 @@ categories = ["api-bindings", "ffi", "tugraph"]
 keywords = ["database", "graph", "binding"]
 homepage = "https://github.com/antkiller996/rust-tugraph"
 links = "lgraph"
+exclude = [
+    "tugraph-db/build",
+    "tugraph-db/deps/build",
+    "tugraph-db/deps/install",
+]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
