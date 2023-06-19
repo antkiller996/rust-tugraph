@@ -1,4 +1,4 @@
-`plugin-util` is a helper crate which make any rust function with following signature
+`tugraph-plugin-util` is a helper crate which make any rust function with following signature
 ```rust
 fn (_: &mut Graph, _: &str) -> Result<String>
 ```

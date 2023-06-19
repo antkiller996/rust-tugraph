@@ -31,9 +31,9 @@ pub fn tugraph_plugin(_attr: TokenStream, input: TokenStream) -> TokenStream {
     let func_name = proc_macro2::TokenStream::from(TokenStream::from(func_name));
     let user_process_func = proc_macro2::TokenStream::from(input);
     let extern_c_process = quote! {
-        use plugin_util::lgraph_api_graph_db_t;
-        use plugin_util::CxxString;
-        use plugin_util::Graph as TuGraph;
+        use tugraph_plugin_util::lgraph_api_graph_db_t;
+        use tugraph_plugin_util::CxxString;
+        use tugraph_plugin_util::Graph as TuGraph;
         #[allow(clippy::missing_safety_doc)]
         #[no_mangle]
         pub unsafe extern "C" fn Process(graph_db: *mut lgraph_api_graph_db_t, request: *const CxxString, response: *mut CxxString) -> bool {

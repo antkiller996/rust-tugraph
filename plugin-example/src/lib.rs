@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use plugin_util::tugraph_plugin;
+use tugraph_plugin_util::tugraph_plugin;
 use tugraph::{db::Graph, txn::TxnRead, Result};
 
 #[tugraph_plugin]

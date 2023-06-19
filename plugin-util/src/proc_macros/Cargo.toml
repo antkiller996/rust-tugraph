@@ -1,7 +1,13 @@
 [package]
-name = "plugin_util-proc_macros"
+name = "tugraph_plugin_util-proc_macros"
 version = "0.1.0"
 edition = "2021"
+description = "A helper crate for writing plugins for TuGraph"
+repository = "https://github.com/antkiller996/rust-tugraph"
+license = "Apache-2.0"
+categories = ["plugin"]
+keywords = ["database", "graph", "plugin"]
+homepage = "https://github.com/antkiller996/rust-tugraph"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
