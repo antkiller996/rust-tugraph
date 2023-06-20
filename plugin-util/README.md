@@ -7,7 +7,7 @@ to be a plugin entry point.
 # Example
 ```rust
 use tugraph::{db::Graph, Result, txn::TxnRead};
-use plugin_util::tugraph_plugin;
+use tugraph_plugin_util::tugraph_plugin;
 
 #[tugraph_plugin]
 fn user_process_func(graph: &mut Graph, request: &str) -> Result<String> {
@@ -19,9 +19,9 @@ fn user_process_func(graph: &mut Graph, request: &str) -> Result<String> {
 It exports a attribute proc-macro `#[tugraph_plugin]` which can decorate a rust function and make the function expanded as:
 
 ```rust
-use plugin_util::lgraph_api_graph_db_t;
-use plugin_util::CxxString;
-use plugin_util::Graph as TuGraph;
+use tugraph_plugin_util::lgraph_api_graph_db_t;
+use tugraph_plugin_util::CxxString;
+use tugraph_plugin_util::Graph as TuGraph;
 
 #[no_mangle]
 pub unsafe extern "C" fn Process(
