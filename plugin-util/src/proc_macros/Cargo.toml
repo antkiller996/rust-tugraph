@@ -1,6 +1,6 @@
 [package]
 name = "tugraph_plugin_util-proc_macros"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "A helper crate for writing plugins for TuGraph"
 repository = "https://github.com/antkiller996/rust-tugraph"

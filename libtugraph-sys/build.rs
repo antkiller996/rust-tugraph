@@ -96,9 +96,23 @@ fn build_tugraph_db() {
     let cxx_compiler = env::var("LGRAPH_CXX_COMPILER").unwrap_or("/usr/bin/g++".to_string());
 
     let num_jobs = num_jobs(); // -j N
-    let build_dir = out_dir();
-    let build_dir = build_dir.display(); // -B ${build_dir}
+    let build_dir = out_dir().into_os_string().into_string().unwrap(); // -B ${build_dir}
     let bulid_type = build_type(); // -DCMAKE_BUILD_TYPE=${build_type}
+    let dep_include_dir = deps_install_dir()
+        .join("include")
+        .into_os_string()
+        .into_string()
+        .unwrap(); // -DDEPS_INCLUDE_DIR=${dep_include_dir}
+    let dep_lib_dir = deps_install_dir()
+        .join("lib")
+        .into_os_string()
+        .into_string()
+        .unwrap(); // -DDEPS_LIB_DIR=${dep_lib_dir}
+    let dep_lib64_dir = deps_install_dir()
+        .join("lib64")
+        .into_os_string()
+        .into_string()
+        .unwrap(); // -DDEPS_LIB64_DIR=${dep_lib64_dir}
     run_cmd(
         Command::new("/bin/bash").args([
             "-c",
@@ -109,6 +123,9 @@ fn build_tugraph_db() {
             -DCMAKE_C_COMPILER={c_compiler} \
             -DCMAKE_BUILD_TYPE={bulid_type} \
             -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+            -DDEPS_INCLUDE_DIR={dep_include_dir} \
+            -DDEPS_LIB_DIR={dep_lib_dir} \
+            -DDEPS_LIB64_DIR={dep_lib64_dir} \
         && cmake --build {build_dir} -j {num_jobs} --target lgraph"
             )
             .as_str(),
@@ -116,7 +133,7 @@ fn build_tugraph_db() {
     );
     println!(
         "cargo:rustc-link-search=native={}",
-        out_dir().join("output").display()
+        out_dir().join("output").into_os_string().into_string().unwrap()
     );
     // dynamic link liblgraph.so
     println!("cargo:rustc-link-lib=dylib=lgraph");
@@ -124,9 +141,10 @@ fn build_tugraph_db() {
 
 fn build_dep() {
     let num_jobs = num_jobs();
+    let out_dir = deps_out_dir().into_os_string().into_string().unwrap();
     run_cmd(Command::new("/bin/bash").args([
         "-c",
-        format!("cd tugraph-db && SKIP_WEB=1 deps/build_deps.sh -j{num_jobs} && cd ..").as_str(),
+        format!("SKIP_WEB=1 tugraph-db/deps/build_deps.sh -j{num_jobs} -o {out_dir}").as_str(),
     ]));
 }
 
@@ -136,6 +154,14 @@ fn num_jobs() -> String {
 
 fn out_dir() -> PathBuf {
     PathBuf::from(env::var("OUT_DIR").unwrap())
+}
+
+fn deps_out_dir() -> PathBuf {
+    out_dir().join("deps")
+}
+
+fn deps_install_dir() -> PathBuf {
+    deps_out_dir().join("install")
 }
 
 fn build_type() -> String {

@@ -1,6 +1,6 @@
 [package]
 name = "tugraph"
-version = "0.1.1"
+version = "0.1.2"
 rust-version = "1.68.0"
 authors = ["antkiller <eadrenking@outlook.com>"]
 edition = "2021"
@@ -18,7 +18,7 @@ readme = "README.md"
 members = ["libtugraph-sys", "plugin-example", "plugin-util", "plugin-util/src/proc_macros"]
 
 [dependencies]
-libtugraph-sys = { path = "./libtugraph-sys", version = "0.1.0" }
+libtugraph-sys = { path = "./libtugraph-sys", version = "0.1.1" }
 libc = "0.2"
 chrono = "0.4"
 
