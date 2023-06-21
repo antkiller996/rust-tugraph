@@ -1,18 +1,18 @@
-FROM tugraph/tugraph-compile-centos7:latest
+FROM tugraph/tugraph-compile-ubuntu18.04:latest
 
-# use to set swapon
-RUN yum -y install sudo
+ARG RUST_VERSION=1.68.0
 
-# install libclang-*.so
-RUN yum -y remove git && yum -y install https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm && yum -y install git \
-    && yum -y install centos-release-scl \
-    && yum -y install llvm-toolset-7 \
-    && yum -y install llvm-toolset-7.0-clang-libs-7.0.1-1.el7.x86_64 \
-    && rm -rf /var/cache/yum/*
+# upgrade git and install libclang-*.so
+RUN apt update -y \
+    && apt install -y software-properties-common \
+    && add-apt-repository ppa:git-core/ppa \
+    && apt update -y \
+    && apt remove -y git && apt install -y git \
+    && apt install -y libclang-10-dev \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# export llvm-toolset-7 environment variables
-ENV PATH="/opt/rh/llvm-toolset-7/root/usr/bin:/opt/rh/llvm-toolset-7/root/usr/sbin${PATH:+:${PATH}}"
-ENV LD_LIBRARY_PATH="/opt/rh/llvm-toolset-7/root/usr/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-ENV MANPATH="/opt/rh/llvm-toolset-7/root/usr/share/man:${MANPATH:-}"
-ENV PKG_CONFIG_PATH="/opt/rh/llvm-toolset-7/root/usr/lib64/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}"
-ENV PYTHONPATH="/opt/rh/llvm-toolset-7/root/usr/lib/python2.7/site-packages${PYTHONPATH:+:${PYTHONPATH}}"
+ENV RUSTUP_HOME=/usr/local/rustup CARGO_HOME=/usr/local/cargo PATH="/usr/local/cargo/bin:$PATH"
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+    | sh -s -- -y --no-modify-path --profile default --default-toolchain ${RUST_VERSION} \
+    && chmod -R a+w ${RUSTUP_HOME} ${CARGO_HOME};

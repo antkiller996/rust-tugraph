@@ -116,7 +116,10 @@ fn build_tugraph_db() {
             .as_str(),
         ]),
     );
-    println!("cargo:rustc-link-search=native={}", output_dir().to_str().unwrap());
+    println!(
+        "cargo:rustc-link-search=native={}",
+        output_dir().to_str().unwrap()
+    );
     // dynamic link liblgraph.so
     println!("cargo:rustc-link-lib=dylib=lgraph");
 }
