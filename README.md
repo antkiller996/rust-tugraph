@@ -31,6 +31,7 @@ cargo {build,run,test} [options] {target}
 ```
 
 If you want to write rust procedure, crate [tugraph-plugin-util] helps you a lot.
+> **NOTE**: After TuGraph [b8dcaac](https://github.com/TuGraph-family/tugraph-db/commit/b8dcaac1b70e83b191c4644f182d8d92b26bfef4) version, it supports writing plugin in rust language 
 
 
 
