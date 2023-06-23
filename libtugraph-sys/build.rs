@@ -20,9 +20,13 @@ use std::{
 
 fn main() {
     git_submodule_update_init();
+    fail_on_empty_directory("tugraph-db");
     bindgen_tugraph_db();
 
-    fail_on_empty_directory("tugraph-db");
+    // skip building tugraph-db when building docs in docs.rs
+    if std::env::var("DOCS_RS").is_ok() {
+        return;
+    }
     build_tugraph_db();
 }
 
@@ -92,27 +96,6 @@ fn build_tugraph_db() {
     println!("cargo:rerun-if-env-change=LGRAPH_CXX_COMPILER");
 
     // call cmake to configure and build liblgraph.so
-    let c_compiler = env::var("LGRAPH_C_COMPILER").unwrap_or("/usr/bin/gcc".to_string());
-    let cxx_compiler = env::var("LGRAPH_CXX_COMPILER").unwrap_or("/usr/bin/g++".to_string());
-
-    let num_jobs = num_jobs(); // -j N
-    let build_dir = out_dir().into_os_string().into_string().unwrap(); // -B ${build_dir}
-    let bulid_type = build_type(); // -DCMAKE_BUILD_TYPE=${build_type}
-    let dep_include_dir = deps_install_dir()
-        .join("include")
-        .into_os_string()
-        .into_string()
-        .unwrap(); // -DDEPS_INCLUDE_DIR=${dep_include_dir}
-    let dep_lib_dir = deps_install_dir()
-        .join("lib")
-        .into_os_string()
-        .into_string()
-        .unwrap(); // -DDEPS_LIB_DIR=${dep_lib_dir}
-    let dep_lib64_dir = deps_install_dir()
-        .join("lib64")
-        .into_os_string()
-        .into_string()
-        .unwrap(); // -DDEPS_LIB64_DIR=${dep_lib64_dir}
     run_cmd(
         Command::new("/bin/bash").args([
             "-c",
@@ -121,31 +104,37 @@ fn build_tugraph_db() {
         cmake -S tugraph-db -B {build_dir} \
             -DCMAKE_CXX_COMPILER={cxx_compiler} \
             -DCMAKE_C_COMPILER={c_compiler} \
-            -DCMAKE_BUILD_TYPE={bulid_type} \
+            -DCMAKE_BUILD_TYPE={build_type} \
             -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-            -DDEPS_INCLUDE_DIR={dep_include_dir} \
-            -DDEPS_LIB_DIR={dep_lib_dir} \
-            -DDEPS_LIB64_DIR={dep_lib64_dir} \
-        && cmake --build {build_dir} -j {num_jobs} --target lgraph"
+        && cmake --build {build_dir} -j {num_jobs} --target lgraph",
+                c_compiler = c_compiler(),
+                cxx_compiler = cxx_compiler(),
+                num_jobs = num_jobs(),
+                build_dir = build_dir().to_str().unwrap(),
+                build_type = build_type(),
             )
             .as_str(),
         ]),
     );
-    println!(
-        "cargo:rustc-link-search=native={}",
-        out_dir().join("output").into_os_string().into_string().unwrap()
-    );
+    println!("cargo:rustc-link-search=native={}", output_dir().to_str().unwrap());
     // dynamic link liblgraph.so
     println!("cargo:rustc-link-lib=dylib=lgraph");
 }
 
 fn build_dep() {
     let num_jobs = num_jobs();
-    let out_dir = deps_out_dir().into_os_string().into_string().unwrap();
     run_cmd(Command::new("/bin/bash").args([
         "-c",
-        format!("SKIP_WEB=1 tugraph-db/deps/build_deps.sh -j{num_jobs} -o {out_dir}").as_str(),
+        format!("SKIP_WEB=1 tugraph-db/deps/build_deps.sh -j{num_jobs}").as_str(),
     ]));
+}
+
+fn c_compiler() -> String {
+    env::var("LGRAPH_C_COMPILER").unwrap_or("/usr/bin/gcc".to_string())
+}
+
+fn cxx_compiler() -> String {
+    env::var("LGRAPH_CXX_COMPILER").unwrap_or("/usr/bin/g++".to_string())
 }
 
 fn num_jobs() -> String {
@@ -156,12 +145,12 @@ fn out_dir() -> PathBuf {
     PathBuf::from(env::var("OUT_DIR").unwrap())
 }
 
-fn deps_out_dir() -> PathBuf {
-    out_dir().join("deps")
+fn build_dir() -> PathBuf {
+    out_dir().join("build")
 }
 
-fn deps_install_dir() -> PathBuf {
-    deps_out_dir().join("install")
+fn output_dir() -> PathBuf {
+    build_dir().join("output")
 }
 
 fn build_type() -> String {
