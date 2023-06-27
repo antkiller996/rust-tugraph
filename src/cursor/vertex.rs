@@ -176,7 +176,8 @@ where
     }
 
     fn seek(&mut self, vid: i64, nearest: bool) -> Result<&mut Self> {
-        debug_assert!(self.as_raw().goto(vid, nearest)?);
+        let ret = self.as_raw().goto(vid, nearest)?;
+        debug_assert!(ret);
         Ok(self)
     }
 

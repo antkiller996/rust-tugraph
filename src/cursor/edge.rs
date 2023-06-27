@@ -207,7 +207,8 @@ where
         }
     }
     fn seek(&mut self, euid: &EdgeUid, nearest: bool) -> Result<&mut Self> {
-        debug_assert!(self.as_raw().goto(&euid.as_raw(), nearest)?);
+        let ret = self.as_raw().goto(&euid.as_raw(), nearest)?;
+        debug_assert!(ret);
         Ok(self)
     }
     fn into_edges(self) -> IntoEdgeIter<Self>
